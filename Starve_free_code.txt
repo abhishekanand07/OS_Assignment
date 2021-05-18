@@ -1,15 +1,15 @@
 //Reading process
-Wait(mutex); 
-			 if(active_writers == 0 && waiting_writers == 0){
-				 Signal(read_sem);  
-				 active_readers = active_readers + 1; 
+Wait(ind); 
+			 if(liv_writers == 0 && const_writers == 0){
+				 Signal(get_set);  
+				 liv_readers = liv_readers + 1; 
 			 }
 			 else{
-				 waiting_readers = waiting_readers + 1; 
+				const_readers = const_readers + 1; 
 			 }
 
-		Signal(mutex);
-	   Wait(read_sem);  
+		Signal(ind);
+	   Wait(get_set);  
 
 	   
 	   /*
@@ -20,50 +20,40 @@ Wait(mutex);
 	   
 	   */
 
-	   Wait(mutex);
-	   active_readers = active_readers - 1; 
-	   if(active_readers == 0 && waiting_writers>0){
-			while(waiting_writers > 0){
-			   active_writers = active_writers+1;  
-			   waiting_writers = waiting_writers-1;
-			   Signal(write_sem);  
+	   Wait(ind);
+	   liv_readers = liv_readers - 1; 
+	   if(liv_readers == 0 && const_writers>0){
+			while(const_writers > 0){
+			   liv_writers = liv_writers+1;  
+			   const_writers = const_writers-1;
+			   Signal(out_set);  
 			}
 	   }
-	   Signal(mutex);
+	   Signal(ind);
 	   
 	   
 //Writing Processes:
 
-		Wait(mutex); 
-			 if(active_readers == 0 && waiting_readers == 0){
-				 Signal(write_sem);  
-				 active_writers = active_writers + 1; 
+		Wait(ind); 
+			 if(liv_readers == 0 && const_readers == 0){
+				 Signal(out_set);  
+				 liv_writers = liv_writers + 1; 
 			 }
 			  
 			else{
-				 waiting_writers = waiting_writers + 1; 
+				 const_writers = const_writers + 1; 
 			}
 		  
-		Signal(mutex);
-	   Wait(write_sem);  
-
-	   
-	   /*
-	   
-	   
-	   WRITE THE DATA IN CRITICAL SECTION
-	   
-	   
-	   */
-
-	   Wait(mutex);
-	   active_writers = active_writers - 1; 
-	   if(active_writers == 0 && waiting_readers>0){
-			while(waiting_readers > 0){
-			   active_readers = active_readers+1;  
-			   waiting_readers = waiting_readers-1;
-			   Signal(read_sem);  
+		Signal(ind);
+	   Wait(out_set); 
+	   Wait(ind);
+	   liv_writers = liv_writers -1; 
+	   if(liv_writers == 0 && const_readers>0){
+			while(const_readers > 0){
+			   liv_readers = liv_readers+1;  
+			   const_readers = const_readers-1;
+			   Signal(get_set);  
 			}
 	   }
-	   Signal(mutex);
+	   Signal(ind);
  
